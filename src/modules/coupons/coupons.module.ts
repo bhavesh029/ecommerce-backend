@@ -1,10 +1,10 @@
-import { Module } from "@nestjs/common";
-import { Coupon } from "./entities/coupon.entity";
+import { Module } from '@nestjs/common';
+import { Coupon } from './entities/coupon.entity';
 
 @Module({
-    imports: [Coupon],
-    controllers: [],
-    providers: [],
-    exports: []
+  imports: [Coupon],
+  controllers: [],
+  providers: [],
+  exports: [],
 })
 export class CouponsModule {}

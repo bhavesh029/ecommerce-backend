@@ -19,7 +19,7 @@ export class ProductsService {
 
   async findAll(): Promise<Product[]> {
     return await this.productRepository.find({
-        order: { name: 'ASC' } // Sort alphabetically
+      order: { name: 'ASC' }, // Sort alphabetically
     });
   }
 
@@ -31,10 +31,16 @@ export class ProductsService {
     return product;
   }
 
-  async update(id: string, updateProductDto: UpdateProductDto): Promise<Product> {
+  async update(
+    id: string,
+    updateProductDto: UpdateProductDto,
+  ): Promise<Product> {
     const product = await this.findOne(id); // Check existence first
     // Merge new data into existing entity
-    const updatedProduct = this.productRepository.merge(product, updateProductDto);
+    const updatedProduct = this.productRepository.merge(
+      product,
+      updateProductDto,
+    );
     return await this.productRepository.save(updatedProduct);
   }
 

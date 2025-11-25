@@ -1,8 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
 
 export class CreateProductDto {
-  @ApiProperty({ example: 'Gaming Keyboard', description: 'The name of the product' })
+  @ApiProperty({
+    example: 'Gaming Keyboard',
+    description: 'The name of the product',
+  })
   @IsString()
   @IsNotEmpty()
   name: string;
@@ -12,7 +22,11 @@ export class CreateProductDto {
   @Min(0)
   price: number;
 
-  @ApiProperty({ example: true, description: 'Is the product currently in stock?', required: false })
+  @ApiProperty({
+    example: true,
+    description: 'Is the product currently in stock?',
+    required: false,
+  })
   @IsBoolean()
   @IsOptional()
   inStock?: boolean;

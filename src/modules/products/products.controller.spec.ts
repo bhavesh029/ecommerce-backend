@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProductsController } from './products.controller';
 import { ProductsService } from './products.service';
@@ -8,8 +9,6 @@ describe('ProductsController', () => {
   let controller: ProductsController;
   let service: ProductsService;
 
-  // 1. Create a Mock Service
-  // We don't want to use the real service (which connects to the DB)
   const mockProductsService = {
     create: jest.fn(),
     findAll: jest.fn(),
@@ -37,12 +36,11 @@ describe('ProductsController', () => {
     expect(controller).toBeDefined();
   });
 
-  // --- TEST: CREATE ---
   describe('create', () => {
     it('should create a product', async () => {
       const dto: CreateProductDto = { name: 'Mouse', price: 20, inStock: true };
       const result = { id: 'uuid', ...dto };
-      
+
       mockProductsService.create.mockResolvedValue(result);
 
       expect(await controller.create(dto)).toEqual(result);
@@ -50,7 +48,6 @@ describe('ProductsController', () => {
     });
   });
 
-  // --- TEST: FIND ALL ---
   describe('findAll', () => {
     it('should return an array of products', async () => {
       const result = [{ id: 'uuid', name: 'Mouse', price: 20 }];
@@ -61,7 +58,6 @@ describe('ProductsController', () => {
     });
   });
 
-  // --- TEST: FIND ONE ---
   describe('findOne', () => {
     it('should return a single product', async () => {
       const result = { id: 'uuid', name: 'Mouse', price: 20 };
@@ -72,7 +68,6 @@ describe('ProductsController', () => {
     });
   });
 
-  // --- TEST: UPDATE ---
   describe('update', () => {
     it('should update a product', async () => {
       const dto: UpdateProductDto = { price: 25 };
@@ -84,11 +79,10 @@ describe('ProductsController', () => {
     });
   });
 
-  // --- TEST: DELETE ---
   describe('remove', () => {
     it('should remove a product', async () => {
       mockProductsService.remove.mockResolvedValue(undefined);
-      
+
       await controller.remove('uuid');
       expect(service.remove).toHaveBeenCalledWith('uuid');
     });

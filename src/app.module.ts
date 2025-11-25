@@ -28,10 +28,10 @@ import { CouponsModule } from './modules/coupons/coupons.module';
         username: configService.get<string>('DB_USER'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
-        autoLoadEntities: true, 
-        
+        autoLoadEntities: true,
+
         // Keep true for dev/docker-local, set to false in actual production
-        synchronize: true, 
+        synchronize: true,
       }),
     }),
 

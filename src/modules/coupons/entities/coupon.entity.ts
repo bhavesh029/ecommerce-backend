@@ -1,22 +1,22 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity()
 export class Coupon {
-    @PrimaryGeneratedColumn("uuid")
-    id: string;
-    
-    @Column({unique: true})
-    code: string;
+  @PrimaryGeneratedColumn()
+  id: string;
 
-    @Column()
-    discountType: 'percentage' | 'fixed';
+  @Column({ unique: true })
+  code: string;
 
-    @Column("int")
-    value: number; // e.g., 10 for 10% or 500
+  @Column()
+  discountType: 'percentage' | 'fixed';
 
-    @Column({nullable: true})
-    minCartValue: number;
+  @Column('int')
+  value: number; // e.g., 10 for 10% or 500
 
-    @Column()
-    isActive: boolean;
+  @Column({ nullable: true })
+  minCartValue: number;
+
+  @Column()
+  isActive: boolean;
 }

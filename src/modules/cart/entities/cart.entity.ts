@@ -1,23 +1,33 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn } from "typeorm";
-import { CartItem } from "./cart-item.entity";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { CartItem } from './cart-item.entity';
 
 @Entity()
 export class Cart {
-    @PrimaryGeneratedColumn("uuid")
-    id: string;
+  @PrimaryGeneratedColumn()
+  id: string;
 
-    @Column({nullable: true})
-    userId: string;
+  @Column({ nullable: true })
+  userId: string;
 
-    @Column({ default: "active" }) //active, ordered, abondoned
-    status: string;
+  @Column({ default: 'active' }) //active, ordered, abondoned
+  status: string;
 
-    @OneToMany(() => CartItem, cartItem => cartItem.cart, { cascade: true, eager: true })
-    cartItems: CartItem[];
+  @OneToMany(() => CartItem, (cartItem) => cartItem.cart, {
+    cascade: true,
+    eager: true,
+  })
+  cartItems: CartItem[];
 
-    @CreateDateColumn()
-    createdAt: Date;
+  @CreateDateColumn()
+  createdAt: Date;
 
-    @UpdateDateColumn()
-    updatedAt: Date;
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

@@ -4,6 +4,18 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
+
+// Modules
+import { ProductsModule } from './modules/products/products.module';
+import { CartModule } from './modules/cart/cart.module';
+import { CouponsModule } from './modules/coupons/coupons.module';
+
+// Entities
+import { Product } from './modules/products/entities/products.entity';
+import { Cart } from './modules/cart/entities/cart.entity';
+import { CartItem } from './modules/cart/entities/cart-item.entity';
+import { Coupon } from './modules/coupons/entities/coupon.entity';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -23,6 +35,9 @@ import { AppService } from './app.service';
         synchronize: true,
       }),
     }),
+    ProductsModule,
+    CartModule,
+    CouponsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

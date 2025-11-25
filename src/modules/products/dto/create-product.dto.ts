@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsBoolean,
+  IsInt,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -21,6 +22,11 @@ export class CreateProductDto {
   @IsNumber()
   @Min(0)
   price: number;
+
+  @ApiProperty({ example: 100, description: 'Quantity in stock' })
+  @IsInt()
+  @Min(0)
+  quantity: number; // <--- New Validation
 
   @ApiProperty({
     example: true,

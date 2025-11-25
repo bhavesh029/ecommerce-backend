@@ -19,11 +19,12 @@ export class ProductsService {
 
   async findAll(): Promise<Product[]> {
     return await this.productRepository.find({
-      order: { name: 'ASC' }, // Sort alphabetically
+      order: { name: 'ASC' },
     });
   }
 
-  async findOne(id: string): Promise<Product> {
+  // UPDATED: id is now a number
+  async findOne(id: number): Promise<Product> {
     const product = await this.productRepository.findOneBy({ id });
     if (!product) {
       throw new NotFoundException(`Product with ID ${id} not found`);
@@ -31,12 +32,12 @@ export class ProductsService {
     return product;
   }
 
+  // UPDATED: id is now a number
   async update(
-    id: string,
+    id: number,
     updateProductDto: UpdateProductDto,
   ): Promise<Product> {
-    const product = await this.findOne(id); // Check existence first
-    // Merge new data into existing entity
+    const product = await this.findOne(id);
     const updatedProduct = this.productRepository.merge(
       product,
       updateProductDto,
@@ -44,7 +45,8 @@ export class ProductsService {
     return await this.productRepository.save(updatedProduct);
   }
 
-  async remove(id: string): Promise<void> {
+  // UPDATED: id is now a number
+  async remove(id: number): Promise<void> {
     const result = await this.productRepository.delete(id);
     if (result.affected === 0) {
       throw new NotFoundException(`Product with ID ${id} not found`);

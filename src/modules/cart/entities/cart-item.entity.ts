@@ -1,19 +1,20 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
-import { Product } from "../../products/entities/products.entity";
-import { Cart } from "./cart.entity";
+import { Cart } from "./cart.entity"; // Points to file in same folder
+// CRITICAL: Ensure this path goes up two levels (../../) to find products
+import { Product } from "../../products/entities//product.entity"; 
 
 @Entity()
 export class CartItem {
-    @PrimaryGeneratedColumn("uuid")
-    id: string;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
-    @ManyToOne(() => Cart, cart => cart.cartItems, { onDelete: 'CASCADE' })
-    cart: Cart;
+  @ManyToOne(() => Cart, (cart) => cart.cartItems, { onDelete: 'CASCADE' })
+  cart: Cart;
 
-    @ManyToOne(() => Product)
-    product: Product;
+  // This is the line causing the error if Product is not found
+  @ManyToOne(() => Product)
+  product: Product;
 
-    @Column()
-    quantity: number;
-
+  @Column("int")
+  quantity: number;
 }

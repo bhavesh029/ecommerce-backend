@@ -28,9 +28,6 @@ import { CouponsModule } from './modules/coupons/coupons.module';
         username: configService.get<string>('DB_USER'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
-        
-        // RECOMMENDATION: Use autoLoadEntities instead of __dirname glob patterns.
-        // This prevents path errors when code is compiled to the 'dist' folder in Docker.
         autoLoadEntities: true, 
         
         // Keep true for dev/docker-local, set to false in actual production

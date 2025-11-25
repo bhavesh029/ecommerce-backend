@@ -74,12 +74,13 @@ jobs:
   # ------------------------------------------------------------------
   tests:
     runs-on: ubuntu-latest
-    needs: quality-check
+    # UPDATED: Now waits for both 'quality-check' AND 'docker-build'
+    needs: [quality-check, docker-build] 
     env:
       DB_HOST: postgres
       DB_PORT: 5432
       DB_USER: postgres
-      DB_PASSWORD: password123 # For CI, hardcoded is okay, or use Secrets
+      DB_PASSWORD: password123 
       DB_NAME: ecommerce_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password123
@@ -90,8 +91,7 @@ jobs:
         uses: actions/checkout@v4
 
       # 1. Start the stack using Docker Compose
-      # We use --wait so it blocks until the healthchecks pass (if configured)
-      # or simply waits for containers to be 'running'.
+      # Since we ignore the override file in .gitignore, this runs the CLEAN production settings
       - name: Start Containers
         run: docker-compose up -d postgres
 
@@ -111,10 +111,6 @@ jobs:
       # We override the default 'npm run start:dev' command to run tests instead
       - name: Run Unit Tests
         run: docker-compose run --rm api npm run test
-
-      # Optional: Run E2E Tests if you have them setup
-      # - name: Run E2E Tests
-      #   run: docker-compose run --rm api npm run test:e2e
 
       - name: Stop Containers
         if: always()

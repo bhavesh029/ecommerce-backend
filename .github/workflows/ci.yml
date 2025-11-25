@@ -7,45 +7,31 @@ on:
     branches: [ "main" ]
 
 jobs:
-  # ------------------------------------------------------------------
-  # JOB 1: LINT & TYPE CHECK (Fastest Check)
-  # ------------------------------------------------------------------
   quality-check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-
       - name: Install Dependencies
         run: npm ci
-
       - name: Run Linter
         run: npm run lint
-
-      # This ensures there are no TypeScript errors (like missing properties)
       - name: Type Check
         run: tsc --noEmit
 
-  # ------------------------------------------------------------------
-  # JOB 2: DOCKER BUILD CHECK (Verifies Dockerfile)
-  # ------------------------------------------------------------------
   docker-build:
     runs-on: ubuntu-latest
-    needs: quality-check # Wait for quality check to pass first
+    needs: quality-check
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
-      # Cache Docker layers to make builds faster on subsequent runs
       - name: Cache Docker layers
         uses: actions/cache@v4
         with:
@@ -53,49 +39,40 @@ jobs:
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
-
       - name: Build Docker Image
         uses: docker/build-push-action@v5
         with:
           context: .
-          push: false # We only want to verify it builds, not push to DockerHub yet
+          push: false
           tags: ecommerce-api:test
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-
-      # Temp fix to prevent cache from growing indefinitely
       - name: Move cache
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
-  # ------------------------------------------------------------------
-  # JOB 3: TEST SUITE (Runs inside Docker Compose)
-  # ------------------------------------------------------------------
   tests:
     runs-on: ubuntu-latest
-    # UPDATED: Now waits for both 'quality-check' AND 'docker-build'
-    needs: [quality-check, docker-build] 
+    # CRITICAL: Wait for build to complete before testing
+    needs: [quality-check, docker-build]
     env:
       DB_HOST: postgres
       DB_PORT: 5432
       DB_USER: postgres
-      DB_PASSWORD: password123 
-      DB_NAME: ecommerce_db
+      DB_PASSWORD: postgres
+      DB_NAME: postgres
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password123
-      POSTGRES_DB: ecommerce_db
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
       
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 1. Start the stack using Docker Compose
-      # Since we ignore the override file in .gitignore, this runs the CLEAN production settings
       - name: Start Containers
-        run: docker-compose up -d postgres
+        run: docker compose up -d postgres
 
-      # 2. Wait for Postgres to be ready
       - name: Wait for Database
         run: |
           until docker run --network container:ecommerce_db postgres:15 pg_isready -h postgres -U postgres; do
@@ -103,15 +80,12 @@ jobs:
             sleep 2
           done
 
-      # 3. Build the API container specially for testing
       - name: Build API
-        run: docker-compose build api
+        run: docker compose build api
 
-      # 4. Run Tests INSIDE the container
-      # We override the default 'npm run start:dev' command to run tests instead
       - name: Run Unit Tests
-        run: docker-compose run --rm api npm run test
+        run: docker compose run --rm api npm run test
 
       - name: Stop Containers
         if: always()
-        run: docker-compose down
+        run: docker compose down

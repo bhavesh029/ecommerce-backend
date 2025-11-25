@@ -3,13 +3,16 @@ import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 @Entity()
 export class Product {
   @PrimaryGeneratedColumn()
-  id: string;
+  id: number;
 
   @Column()
   name: string;
 
   @Column('decimal', { precision: 10, scale: 2 })
   price: number;
+
+  @Column('int')
+  quantity: number;
 
   @Column({ default: true })
   inStock: boolean;

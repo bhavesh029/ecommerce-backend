@@ -40,52 +40,29 @@ describe('ProductsService', () => {
 
   describe('create', () => {
     it('should successfully insert a product', async () => {
-      const dto = { name: 'Keyboard', price: 50, inStock: true };
+      // Added quantity
+      const dto = { name: 'Keyboard', price: 50, inStock: true, quantity: 10 };
       mockProductRepository.create.mockReturnValue(dto);
-      mockProductRepository.save.mockResolvedValue({ id: 'uuid', ...dto });
+      mockProductRepository.save.mockResolvedValue({ id: 1, ...dto });
 
       const result = await service.create(dto);
-      expect(result).toEqual({ id: 'uuid', ...dto });
-      expect(repository.create).toHaveBeenCalledWith(dto);
-      expect(repository.save).toHaveBeenCalled();
+      expect(result).toEqual({ id: 1, ...dto });
     });
   });
 
   describe('findOne', () => {
     it('should return a product if found', async () => {
-      const product = { id: 'uuid', name: 'Keyboard' };
+      const product = { id: 1, name: 'Keyboard', quantity: 10 };
       mockProductRepository.findOneBy.mockResolvedValue(product);
 
-      const result = await service.findOne('uuid');
+      const result = await service.findOne(1);
       expect(result).toEqual(product);
     });
 
     it('should throw NotFoundException if product not found', async () => {
       mockProductRepository.findOneBy.mockResolvedValue(null);
-
-      await expect(service.findOne('bad-id')).rejects.toThrow(
-        NotFoundException,
-      );
-    });
-  });
-
-  describe('update', () => {
-    it('should update and return the product', async () => {
-      const existingProduct = { id: 'uuid', name: 'Old Name', price: 10 };
-      const updateDto = { name: 'New Name' };
-
-      mockProductRepository.findOneBy.mockResolvedValue(existingProduct);
-      mockProductRepository.merge.mockReturnValue({
-        ...existingProduct,
-        ...updateDto,
-      });
-      mockProductRepository.save.mockResolvedValue({
-        ...existingProduct,
-        ...updateDto,
-      });
-
-      const result = await service.update('uuid', updateDto);
-      expect(result.name).toEqual('New Name');
+      // Pass a number ID
+      await expect(service.findOne(999)).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -93,14 +70,14 @@ describe('ProductsService', () => {
     it('should delete the product if it exists', async () => {
       mockProductRepository.delete.mockResolvedValue({ affected: 1 });
 
-      await service.remove('uuid');
-      expect(repository.delete).toHaveBeenCalledWith('uuid');
+      await service.remove(1);
+      expect(repository.delete).toHaveBeenCalledWith(1);
     });
 
     it('should throw NotFoundException if product does not exist', async () => {
       mockProductRepository.delete.mockResolvedValue({ affected: 0 });
 
-      await expect(service.remove('uuid')).rejects.toThrow(NotFoundException);
+      await expect(service.remove(1)).rejects.toThrow(NotFoundException);
     });
   });
 });

@@ -8,6 +8,7 @@ import { AppService } from './app.service';
 import { ProductsModule } from './modules/products/products.module';
 import { CartModule } from './modules/cart/cart.module';
 import { CouponsModule } from './modules/coupons/coupons.module';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { CouponsModule } from './modules/coupons/coupons.module';
     ProductsModule,
     CartModule,
     CouponsModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

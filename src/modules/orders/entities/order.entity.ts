@@ -24,13 +24,13 @@ export class Order {
   items: OrderItem[];
 
   @Column('decimal', { precision: 10, scale: 2 })
-  totalAmount: number; 
+  totalAmount: number;
 
   @Column('decimal', { precision: 10, scale: 2, default: 0 })
   discountAmount: number;
 
   @Column('decimal', { precision: 10, scale: 2 })
-  finalAmount: number; 
+  finalAmount: number;
 
   @Column({ nullable: true })
   couponCode: string;

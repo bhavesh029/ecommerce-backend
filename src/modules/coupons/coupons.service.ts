@@ -10,7 +10,7 @@ import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Coupon } from './entities/coupon.entity';
 import { CreateCouponDto } from './dto/create-coupon.dto';
-import { OrdersService } from '../orders/orders.service'; // Import OrdersService
+import { OrdersService } from '../orders/orders.service';
 
 @Injectable()
 export class CouponsService {
@@ -18,7 +18,6 @@ export class CouponsService {
     @InjectRepository(Coupon)
     private couponsRepository: Repository<Coupon>,
     private configService: ConfigService,
-    // Inject OrdersService to get real count
     @Inject(forwardRef(() => OrdersService))
     private ordersService: OrdersService,
   ) {}
@@ -45,24 +44,28 @@ export class CouponsService {
     return coupon;
   }
 
-  async generateNthOrderCoupon(): Promise<{
+  // UPDATED: Now requires userId to check that specific user's order history
+  async generateNthOrderCoupon(userId: number): Promise<{
     eligible: boolean;
     coupon?: Coupon;
   }> {
     const n = this.configService.get<number>('DISCOUNT_NTH_INTERVAL') || 5;
 
-    // 1. Get REAL order count from Order Module
-    const currentOrderCount = await this.ordersService.countOrders();
+    // 1. Get Order count FOR THIS SPECIFIC USER
+    const currentOrderCount = await this.ordersService.countOrders(userId);
     const nextOrderIndex = currentOrderCount + 1;
 
     if (nextOrderIndex % n === 0) {
-      const code = `LUCKY-${nextOrderIndex}`;
+      // 2. Generate Unique Code Per User (LUCKY-USERID-ORDERINDEX)
+      // Example: LUCKY-1-5 (User 1's 5th order reward)
+      const code = `LUCKY-${userId}-${nextOrderIndex}`;
+
       let coupon = await this.couponsRepository.findOneBy({ code });
 
       if (!coupon) {
         coupon = this.couponsRepository.create({
           code,
-          discountPercentage: 50,
+          discountPercentage: 10, // Set to 10% as per requirements
           isActive: true,
           isUsed: false,
         });

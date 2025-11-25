@@ -2,6 +2,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CouponsController } from './coupons.controller';
 import { CouponsService } from './coupons.service';
+import { CheckEligibilityDto } from './dto/check-eligibility.dto';
 
 describe('CouponsController', () => {
   let controller: CouponsController;
@@ -11,7 +12,6 @@ describe('CouponsController', () => {
     create: jest.fn(),
     findByCode: jest.fn(),
     generateNthOrderCoupon: jest.fn(),
-    incrementOrderCount: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -29,9 +29,12 @@ describe('CouponsController', () => {
   });
 
   describe('requestNthCoupon', () => {
-    it('should call service', async () => {
-      await controller.requestNthCoupon();
-      expect(service.generateNthOrderCoupon).toHaveBeenCalled();
+    it('should call service with userId', async () => {
+      const dto: CheckEligibilityDto = { userId: 1 };
+
+      await controller.requestNthCoupon(dto);
+
+      expect(service.generateNthOrderCoupon).toHaveBeenCalledWith(1);
     });
   });
 });

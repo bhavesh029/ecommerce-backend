@@ -22,10 +22,9 @@ export class OrdersService {
     private cartService: CartService,
     private productsService: ProductsService,
     private usersService: UsersService,
-    // Circular dependency: Use forwardRef
     @Inject(forwardRef(() => CouponsService))
     private couponsService: CouponsService,
-    private dataSource: DataSource, // For Transactions
+    private dataSource: DataSource,
   ) {}
 
   async checkout(createOrderDto: CreateOrderDto): Promise<Order> {
@@ -39,7 +38,7 @@ export class OrdersService {
       throw new BadRequestException('Cart is empty');
     }
 
-    // 2. Calculate Totals & Verify Stock (Again)
+    // 2. Calculate Totals & Verify Stock
     let totalAmount = 0;
     for (const item of cart.cartItems) {
       const product = await this.productsService.findOne(item.product.id);
@@ -56,18 +55,15 @@ export class OrdersService {
     if (couponCode) {
       const coupon = await this.couponsService.findByCode(couponCode);
       discountAmount = (totalAmount * coupon.discountPercentage) / 100;
-
-      // Mark coupon as used
       await this.couponsService.applyCoupon(couponCode);
     }
 
-    // 4. Run Transaction (Create Order + Decrease Stock + Clear Cart)
+    // 4. Transaction
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
-      // A. Create Order
       const order = new Order();
       order.user = user;
       order.totalAmount = totalAmount;
@@ -75,27 +71,23 @@ export class OrdersService {
       order.finalAmount = totalAmount - discountAmount;
       order.couponCode = couponCode ?? '';
 
-      // B. Create Order Items & Decrease Stock
       const orderItems: OrderItem[] = [];
       for (const item of cart.cartItems) {
         const orderItem = new OrderItem();
         orderItem.product = item.product;
         orderItem.quantity = item.quantity;
-        orderItem.priceAtPurchase = item.product.price; // Freeze price
+        orderItem.priceAtPurchase = item.product.price;
         orderItems.push(orderItem);
 
-        // Update Stock
         await this.productsService.update(item.product.id, {
           quantity: item.product.quantity - item.quantity,
         });
       }
       order.items = orderItems;
 
-      // C. Save Order
       const savedOrder = await queryRunner.manager.save(Order, order);
 
-      // D. Clear Cart
-      await this.cartService.removeFromCart(null as any, userId);
+      // Clear cart items
       await queryRunner.manager.delete('cart_item', { cart: { id: cart.id } });
 
       await queryRunner.commitTransaction();
@@ -112,8 +104,11 @@ export class OrdersService {
     return this.orderRepository.find({ order: { createdAt: 'DESC' } });
   }
 
-  // Used by CouponsService to check Nth customer logic
-  async countOrders(): Promise<number> {
+  // UPDATED: Accepts optional userId to count per user
+  async countOrders(userId?: number): Promise<number> {
+    if (userId) {
+      return this.orderRepository.count({ where: { user: { id: userId } } });
+    }
     return this.orderRepository.count();
   }
 }

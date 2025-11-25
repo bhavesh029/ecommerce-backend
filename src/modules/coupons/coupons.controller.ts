@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { CouponsService } from './coupons.service';
 import { CreateCouponDto } from './dto/create-coupon.dto';
+import { CheckEligibilityDto } from './dto/check-eligibility.dto';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @ApiTags('Coupons')
@@ -21,12 +22,10 @@ export class CouponsController {
   }
 
   @Post('request-nth')
-  @ApiOperation({
-    summary:
-      'Request a discount code (Checks Nth customer logic against real orders)',
-  })
+  @ApiOperation({ summary: 'Check if User is eligible for Nth order coupon' })
   @ApiResponse({ status: 200, description: 'Check result' })
-  requestNthCoupon() {
-    return this.couponsService.generateNthOrderCoupon();
+  requestNthCoupon(@Body() dto: CheckEligibilityDto) {
+    // Updated to use Body
+    return this.couponsService.generateNthOrderCoupon(dto.userId);
   }
 }

@@ -12,12 +12,8 @@ export class AddToCartDto {
   @Min(1)
   quantity: number;
 
-  @ApiProperty({
-    example: 1,
-    description: 'User ID (Optional for guest)',
-    required: false,
-  })
+  @ApiProperty({ example: 1, description: 'User ID ', required: false })
   @IsInt()
   @IsOptional()
-  userId?: number;
+  userId: number;
 }

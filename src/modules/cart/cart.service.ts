@@ -4,11 +4,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { Repository, FindOptionsWhere } from 'typeorm';
 import { Cart } from './entities/cart.entity';
 import { CartItem } from './entities/cart-item.entity';
 import { ProductsService } from '../products/products.service';
-import { UsersService } from '../users/users.service'; // Import UsersService
+import { UsersService } from '../users/users.service';
 import { AddToCartDto } from './dto/add-to-cart.dto';
 
 @Injectable()
@@ -19,14 +19,12 @@ export class CartService {
     @InjectRepository(CartItem)
     private cartItemRepository: Repository<CartItem>,
     private productsService: ProductsService,
-    private usersService: UsersService, // Inject UsersService
+    private usersService: UsersService,
   ) {}
 
-  // UPDATED: Logic to find cart by User ID
   async getOrCreateCart(userId?: number): Promise<Cart> {
     const query: FindOptionsWhere<Cart> = { status: 'active' };
 
-    // If userId provided, look for that user's active cart
     if (userId) {
       query.user = { id: userId };
     } else {
@@ -41,9 +39,8 @@ export class CartService {
     if (!cart) {
       cart = this.cartRepository.create({ status: 'active' });
 
-      // Link User if provided
       if (userId) {
-        const user = await this.usersService.findOne(userId); // Ensure user exists
+        const user = await this.usersService.findOne(userId);
         cart.user = user;
       }
 
@@ -64,7 +61,6 @@ export class CartService {
       );
     }
 
-    // Pass userId to get specific cart
     const cart = await this.getOrCreateCart(userId);
 
     let cartItem = cart.cartItems.find((item) => item.product.id === productId);

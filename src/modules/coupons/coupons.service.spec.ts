@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import { Test, TestingModule } from '@nestjs/testing';
 import { CouponsService } from './coupons.service';
 import { OrdersService } from '../orders/orders.service'; // Import OrdersService
@@ -46,13 +45,15 @@ describe('CouponsService', () => {
     it('should return eligible=false if not nth order', async () => {
       // Set N = 5
       mockConfig.get.mockReturnValue(5);
-      
+
       // Mock Order Count: 0 orders so far. Next is 1.
       // 1 % 5 != 0
       mockOrdersService.countOrders.mockResolvedValue(0);
 
-      const result = await service.generateNthOrderCoupon();
+      // Pass userId 1
+      const result = await service.generateNthOrderCoupon(1);
       expect(result.eligible).toBe(false);
+      expect(mockOrdersService.countOrders).toHaveBeenCalledWith(1);
     });
 
     it('should return eligible=true if nth order', async () => {
@@ -63,11 +64,13 @@ describe('CouponsService', () => {
       mockOrdersService.countOrders.mockResolvedValue(4);
 
       mockRepo.findOneBy.mockResolvedValue(null); // No existing coupon
-      mockRepo.create.mockReturnValue({ code: 'LUCKY-5' });
-      mockRepo.save.mockResolvedValue({ code: 'LUCKY-5' });
+      mockRepo.create.mockReturnValue({ code: 'LUCKY-1-5' }); // Updated format: LUCKY-{userId}-{count}
+      mockRepo.save.mockResolvedValue({ code: 'LUCKY-1-5' });
 
-      const result = await service.generateNthOrderCoupon();
+      // Pass userId 1
+      const result = await service.generateNthOrderCoupon(1);
       expect(result.eligible).toBe(true);
+      expect(mockOrdersService.countOrders).toHaveBeenCalledWith(1);
       expect(mockRepo.save).toHaveBeenCalled();
     });
   });

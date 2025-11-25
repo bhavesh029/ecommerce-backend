@@ -1,22 +1,19 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity()
-export class Coupon {
+export class  Coupon {
   @PrimaryGeneratedColumn()
-  id: string;
+  id: number;
 
   @Column({ unique: true })
-  code: string;
-
-  @Column()
-  discountType: 'percentage' | 'fixed';
+  code: string; // e.g., "LUCKY-100"
 
   @Column('int')
-  value: number; // e.g., 10 for 10% or 500
+  discountPercentage: number; // e.g., 10 for 10%
 
-  @Column({ nullable: true })
-  minCartValue: number;
-
-  @Column()
+  @Column({ default: true })
   isActive: boolean;
+
+  @Column({ default: false })
+  isUsed: boolean; // Tracks if the Nth order coupon has been consumed
 }

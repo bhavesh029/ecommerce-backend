@@ -3,7 +3,7 @@ import { CartItem } from "./cart-item.entity";
 
 @Entity()
 export class Cart {
-    @PrimaryGeneratedColumn("uuid")
+    @PrimaryGeneratedColumn()
     id: string;
 
     @Column({nullable: true})
